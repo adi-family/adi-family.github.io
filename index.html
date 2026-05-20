@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ADI Family — engineering, distilled.</title>
+    <meta
+      name="description"
+      content="ADI Family ships open-source engineering tools — schemas, surfaces, codegen. Home of Box, a declarative DSL for project surfaces."
+    />
+
+    <link rel="canonical" href="https://github.withadi.dev/" />
+    <meta name="theme-color" content="#050505" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ADI Family" />
+    <meta property="og:title" content="ADI Family — engineering, distilled." />
+    <meta
+      property="og:description"
+      content="Open-source engineering tools. Schemas, surfaces, codegen. Home of Box."
+    />
+    <meta property="og:url" content="https://github.withadi.dev/" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ADI Family — engineering, distilled." />
+    <meta
+      name="twitter:description"
+      content="Open-source engineering tools. Schemas, surfaces, codegen. Home of Box."
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "ADI Family",
+        "url": "https://github.withadi.dev/",
+        "sameAs": ["https://github.com/adi-family"]
+      }
+    </script>
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23050505'/%3E%3Cpath d='M16 18 L48 18 L48 50 L16 50 Z' fill='none' stroke='%23c96422' stroke-width='3'/%3E%3Cpath d='M16 18 L24 10 L56 10 L48 18' fill='none' stroke='%23c96422' stroke-width='3'/%3E%3Cpath d='M48 50 L56 42 L56 10' fill='none' stroke='%23c96422' stroke-width='3'/%3E%3C/svg%3E" />
+
+    <style>
+      :root {
+        --brand: #c96422;
+        --brand-soft: rgba(201, 100, 34, 0.6);
+        --bg: #050505;
+        --bg-2: #0b0b0b;
+        --rule: rgba(255, 255, 255, 0.08);
+        --text-1: #fafaf7;
+        --text-2: rgba(250, 250, 247, 0.78);
+        --text-3: rgba(250, 250, 247, 0.5);
+        --mono:
+          ui-monospace, "SF Mono", "Menlo", "Consolas", "DejaVu Sans Mono",
+          monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text-1);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+          Arial, sans-serif;
+        font-feature-settings: "ss01", "cv11";
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      /* ---------- Edge frame: thin orange rules at the page border ---------- */
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(201, 100, 34, 0.35) 20%,
+          rgba(201, 100, 34, 0.35) 80%,
+          transparent
+        );
+        pointer-events: none;
+        z-index: 2;
+      }
+      body::before {
+        top: 0;
+      }
+      body::after {
+        bottom: 0;
+      }
+
+      /* ---------- Hero ---------- */
+
+      .hero {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        min-height: 640px;
+        overflow: hidden;
+      }
+
+      .hero__canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      /* Subtle scan beam: a thin orange band that slowly drifts down the
+         hero, to give the canvas a sense of active rendering rather than
+         a frozen background. */
+      .hero__scan {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.45;
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          transparent 48%,
+          rgba(201, 100, 34, 0.18) 50%,
+          transparent 52%,
+          transparent 100%
+        );
+        background-size: 100% 220%;
+        animation: scan 9s linear infinite;
+        z-index: 1;
+      }
+
+      @keyframes scan {
+        from {
+          background-position: 0% -110%;
+        }
+        to {
+          background-position: 0% 110%;
+        }
+      }
+
+      .hero__content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        pointer-events: none;
+        z-index: 2;
+        padding: 0 24px;
+      }
+
+      .hero__eyebrow,
+      .hero__actions {
+        pointer-events: auto;
+      }
+
+      .hero__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        margin-bottom: 1.75rem;
+        transition: border-color 0.2s ease, color 0.2s ease;
+      }
+      .hero__eyebrow:hover {
+        border-color: rgba(201, 100, 34, 0.5);
+        color: #fff;
+      }
+      .hero__eyebrow-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--brand);
+        box-shadow: 0 0 10px var(--brand-soft);
+        animation: pulse 2.4s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.55; transform: scale(0.85); }
+      }
+
+      .hero__title {
+        font-size: clamp(72px, 14vmin, 220px);
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        line-height: 0.95;
+        margin: 0;
+        color: #fff;
+        text-shadow:
+          0 4px 24px rgba(0, 0, 0, 0.6),
+          0 0 60px rgba(201, 100, 34, 0.18);
+      }
+
+      .hero__tagline {
+        margin: 1.25rem 0 0;
+        max-width: 38ch;
+        font-size: clamp(15px, 1.7vmin, 19px);
+        color: var(--text-2);
+        letter-spacing: 0.02em;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+        line-height: 1.45;
+      }
+
+      .hero__features {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: baseline;
+        column-gap: 0.85rem;
+        row-gap: 0.4rem;
+        margin: 1.75rem 0 0;
+        font-family: var(--mono);
+        font-size: clamp(11px, 1.2vmin, 13px);
+        letter-spacing: 0.14em;
+        text-transform: lowercase;
+      }
+      .hero__feature {
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .hero__sep {
+        color: var(--brand-soft);
+        font-weight: 700;
+      }
+
+      .hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 2.25rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        padding: 12px 22px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: transform 0.2s ease, background 0.2s ease,
+          border-color 0.2s ease;
+      }
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.24);
+        transform: translateY(-1px);
+      }
+      .btn--primary {
+        background: var(--brand);
+        border-color: var(--brand);
+        color: #fff;
+        box-shadow: 0 8px 24px -8px rgba(201, 100, 34, 0.6);
+      }
+      .btn--primary:hover {
+        background: #b15518;
+        border-color: #b15518;
+      }
+      .btn svg {
+        transition: transform 0.2s ease;
+      }
+      .btn:hover svg {
+        transform: translateX(2px);
+      }
+
+      .hero__scroll {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 38px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: grid;
+        place-items: start center;
+        padding-top: 8px;
+        pointer-events: auto;
+        z-index: 2;
+        opacity: 0.65;
+        text-decoration: none;
+        transition: opacity 0.2s ease, border-color 0.2s ease;
+      }
+      .hero__scroll:hover {
+        opacity: 1;
+        border-color: rgba(201, 100, 34, 0.6);
+      }
+      .hero__scroll-dot {
+        width: 3px;
+        height: 6px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.85);
+        animation: bounce 2s ease-in-out infinite;
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0);   opacity: 0.95; }
+        50%      { transform: translateY(14px); opacity: 0.2; }
+      }
+
+      /* ---------- Projects section ---------- */
+
+      .projects {
+        position: relative;
+        padding: 7rem 24px 6rem;
+        background: var(--bg);
+      }
+      .projects::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(201, 100, 34, 0.4) 50%,
+          transparent
+        );
+      }
+      .projects__inner {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      .projects__eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--brand);
+        margin: 0 0 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .projects__eyebrow::before {
+        content: "";
+        flex: 0 0 32px;
+        height: 1px;
+        background: var(--brand);
+      }
+      .projects__title {
+        font-size: clamp(32px, 5vmin, 56px);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        margin: 0 0 0.75rem;
+      }
+      .projects__lead {
+        color: var(--text-2);
+        max-width: 60ch;
+        margin: 0 0 3rem;
+        line-height: 1.55;
+        font-size: clamp(15px, 1.6vmin, 17px);
+      }
+
+      .project {
+        position: relative;
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 28px 28px 24px;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.015) 0%,
+            rgba(255, 255, 255, 0) 100%
+          ),
+          var(--bg-2);
+        transition: border-color 0.2s ease, transform 0.2s ease;
+      }
+      .project + .project {
+        margin-top: 16px;
+      }
+      .project:hover {
+        border-color: rgba(201, 100, 34, 0.4);
+        transform: translateY(-1px);
+      }
+
+      .project__head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .project__name {
+        font-family: var(--mono);
+        font-size: clamp(22px, 3vmin, 30px);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: #fff;
+        margin: 0;
+      }
+      .project__name a {
+        text-decoration: none;
+      }
+      .project__name a:hover {
+        color: var(--brand);
+      }
+      .project__pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border: 1px solid rgba(201, 100, 34, 0.4);
+        border-radius: 999px;
+        background: rgba(201, 100, 34, 0.08);
+        color: var(--brand);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .project__pill-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--brand);
+        box-shadow: 0 0 8px var(--brand-soft);
+      }
+      .project__lead {
+        margin: 14px 0 18px;
+        color: var(--text-2);
+        max-width: 64ch;
+        line-height: 1.55;
+        font-size: 16px;
+      }
+      .project__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 18px;
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      .project__link {
+        text-decoration: none;
+        color: var(--text-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s ease;
+      }
+      .project__link::before {
+        content: "→";
+        color: var(--brand);
+      }
+      .project__link:hover {
+        color: #fff;
+      }
+
+      .projects__more {
+        margin-top: 4rem;
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--rule);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .projects__more::before {
+        content: "";
+        flex: 0 0 14px;
+        height: 1px;
+        background: var(--text-3);
+      }
+
+      /* ---------- Footer ---------- */
+
+      .footer {
+        padding: 2rem 24px 3rem;
+        border-top: 1px solid var(--rule);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--text-3);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 24px;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      .footer a {
+        text-decoration: none;
+        color: var(--text-3);
+        transition: color 0.15s ease;
+      }
+      .footer a:hover {
+        color: #fff;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .hero__eyebrow-dot,
+        .hero__scroll-dot,
+        .hero__scan {
+          animation: none;
+        }
+      }
+
+      @media (max-width: 540px) {
+        .hero {
+          height: 92vh;
+          min-height: 560px;
+        }
+        .projects {
+          padding: 5rem 20px 4rem;
+        }
+        .project {
+          padding: 22px 20px 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <section class="hero" aria-label="ADI Family">
+        <canvas class="hero__canvas" aria-hidden="true"></canvas>
+        <div class="hero__scan" aria-hidden="true"></div>
+
+        <div class="hero__content">
+          <a
+            class="hero__eyebrow"
+            href="https://github.com/adi-family"
+          >
+            <span class="hero__eyebrow-dot"></span>
+            <span>org · github.com/adi-family</span>
+          </a>
+
+          <h1 class="hero__title">ADI</h1>
+          <p class="hero__tagline">engineering, distilled.</p>
+
+          <p class="hero__features">
+            <span class="hero__feature">schemas</span>
+            <span class="hero__sep">·</span>
+            <span class="hero__feature">surfaces</span>
+            <span class="hero__sep">·</span>
+            <span class="hero__feature">codegen</span>
+          </p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="/box/">
+              Explore Box
+              <svg
+                viewBox="0 0 16 16"
+                width="14"
+                height="14"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 3l5 5-5 5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </a>
+            <a class="btn" href="https://github.com/adi-family">View on GitHub</a>
+          </div>
+        </div>
+
+        <a class="hero__scroll" href="#projects" aria-label="Scroll for more">
+          <span class="hero__scroll-dot"></span>
+        </a>
+      </section>
+
+      <section id="projects" class="projects">
+        <div class="projects__inner">
+          <p class="projects__eyebrow">Open source · 2026</p>
+          <h2 class="projects__title">What's shipping.</h2>
+          <p class="projects__lead">
+            Small set, on purpose. Each one earns its place by collapsing
+            a workflow into a single source of truth — schemas, project
+            surfaces, codegen. No abstractions for their own sake.
+          </p>
+
+          <article class="project">
+            <header class="project__head">
+              <h3 class="project__name">
+                <a href="/box/">box</a>
+              </h3>
+              <span class="project__pill">
+                <span class="project__pill-dot"></span>
+                Draft v0.13
+              </span>
+            </header>
+            <p class="project__lead">
+              A declarative DSL for schemas and project surfaces. Define
+              HTTP APIs, MCP tools, CLIs, and codegen targets once —
+              plugins generate clients, servers, and specs from a single
+              source.
+            </p>
+            <div class="project__links">
+              <a class="project__link" href="/box/">site</a>
+              <a
+                class="project__link"
+                href="https://github.com/adi-family/box"
+                >source</a
+              >
+              <a
+                class="project__link"
+                href="https://github.com/adi-family/box/blob/main/SPEC.md"
+                >spec (en)</a
+              >
+              <a
+                class="project__link"
+                href="https://github.com/adi-family/box/blob/main/SPEC-zh.md"
+                >规范 (中文)</a
+              >
+            </div>
+          </article>
+
+          <p class="projects__more">More landing here as they ship.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>© 2026 ADI Family · MIT-licensed where applicable</span>
+      <span>
+        <a href="https://github.com/adi-family/adi-family.github.io"
+          >source for this page</a
+        >
+      </span>
+    </footer>
+
+    <script>
+      // Vanilla port of HeroBox.vue's cube renderer. Same vertex/face
+      // tables, same x-ray edge pass, same baseline rotation. Decoupled
+      // from any framework so the page stays a single static file.
+      (function () {
+        var canvas = document.querySelector(".hero__canvas");
+        if (!canvas) return;
+
+        var ctx = canvas.getContext("2d");
+        var dpr = 1;
+        var raf = 0;
+
+        var BASE_ROT_X = -0.4;
+        var BASE_ROT_Y = -0.45;
+        var targetRotX = BASE_ROT_X;
+        var targetRotY = BASE_ROT_Y;
+        var rotX = BASE_ROT_X;
+        var rotY = BASE_ROT_Y;
+
+        // prettier-ignore
+        var verts = [
+          [-1,-1,-1], [ 1,-1,-1], [ 1, 1,-1], [-1, 1,-1],
+          [-1,-1, 1], [ 1,-1, 1], [ 1, 1, 1], [-1, 1, 1]
+        ];
+        // CCW from outside the cube.
+        var faces = [
+          [0, 3, 2, 1], // back
+          [4, 5, 6, 7], // front
+          [0, 4, 7, 3], // left
+          [1, 2, 6, 5], // right
+          [0, 1, 5, 4], // top
+          [3, 7, 6, 2], // bottom
+        ];
+        // All 12 edges (near + far) for the x-ray look.
+        var edges = [
+          [0, 1], [1, 2], [2, 3], [3, 0],
+          [4, 5], [5, 6], [6, 7], [7, 4],
+          [0, 4], [1, 5], [2, 6], [3, 7],
+        ];
+
+        function rotateX(v, a) {
+          var c = Math.cos(a), s = Math.sin(a);
+          return [v[0], v[1] * c - v[2] * s, v[1] * s + v[2] * c];
+        }
+        function rotateY(v, a) {
+          var c = Math.cos(a), s = Math.sin(a);
+          return [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c];
+        }
+        function project(v, w, h, scale, persp) {
+          var f = persp / (persp - v[2]);
+          return [w / 2 + v[0] * scale * f, h / 2 + v[1] * scale * f];
+        }
+
+        function resize() {
+          dpr = window.devicePixelRatio || 1;
+          canvas.width = Math.round(canvas.clientWidth * dpr);
+          canvas.height = Math.round(canvas.clientHeight * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function onMouseMove(e) {
+          var px = e.clientX / window.innerWidth;
+          var py = e.clientY / window.innerHeight;
+          targetRotY = BASE_ROT_Y + (px - 0.5) * Math.PI * 0.3;
+          targetRotX = BASE_ROT_X - (py - 0.5) * 0.3;
+        }
+
+        function tracePath(face, projected) {
+          ctx.beginPath();
+          var p0 = projected[face[0]];
+          ctx.moveTo(p0[0], p0[1]);
+          for (var i = 1; i < face.length; i++) {
+            var p = projected[face[i]];
+            ctx.lineTo(p[0], p[1]);
+          }
+          ctx.closePath();
+        }
+
+        function draw() {
+          var w = canvas.clientWidth;
+          var h = canvas.clientHeight;
+          if (w === 0 || h === 0) {
+            raf = requestAnimationFrame(draw);
+            return;
+          }
+
+          rotX += (targetRotX - rotX) * 0.08;
+          rotY += (targetRotY - rotY) * 0.08;
+
+          var rotated = verts.map(function (v) {
+            return rotateY(rotateX(v, rotX), rotY);
+          });
+
+          var scale = Math.min(Math.min(w, h) * 0.25, 320);
+          var persp = 5;
+          var projected = rotated.map(function (v) {
+            return project(v, w, h, scale, persp);
+          });
+
+          ctx.clearRect(0, 0, w, h);
+
+          var visible = faces
+            .map(function (face) {
+              var v0 = rotated[face[0]];
+              var v1 = rotated[face[1]];
+              var vL = rotated[face[face.length - 1]];
+              var nz =
+                (v1[0] - v0[0]) * (vL[1] - v0[1]) -
+                (v1[1] - v0[1]) * (vL[0] - v0[0]);
+              return {
+                face: face,
+                avgZ: face.reduce(function (s, i) {
+                  return s + rotated[i][2];
+                }, 0) / 4,
+                nz: nz,
+              };
+            })
+            .filter(function (f) {
+              return f.nz > 0;
+            })
+            .sort(function (a, b) {
+              return a.avgZ - b.avgZ;
+            });
+
+          // Pass 1: solid black fills for the front-facing faces.
+          ctx.fillStyle = "#000";
+          for (var i = 0; i < visible.length; i++) {
+            tracePath(visible[i].face, projected);
+            ctx.fill();
+          }
+
+          // Pass 2: all 12 edges, alpha gradient by depth (x-ray).
+          ctx.lineWidth = 1.4;
+          ctx.lineCap = "round";
+          for (var j = 0; j < edges.length; j++) {
+            var a = edges[j][0];
+            var b = edges[j][1];
+            var avgZ = (rotated[a][2] + rotated[b][2]) / 2;
+            var shade = Math.max(0, Math.min(1, (avgZ + 1) / 2));
+            var alpha = 0.22 + shade * 0.6;
+            ctx.strokeStyle = "rgba(201, 100, 34, " + alpha + ")";
+            ctx.beginPath();
+            ctx.moveTo(projected[a][0], projected[a][1]);
+            ctx.lineTo(projected[b][0], projected[b][1]);
+            ctx.stroke();
+          }
+
+          raf = requestAnimationFrame(draw);
+        }
+
+        var ro = new ResizeObserver(resize);
+        ro.observe(canvas);
+        resize();
+
+        window.addEventListener("mousemove", onMouseMove, { passive: true });
+        raf = requestAnimationFrame(draw);
+      })();
+    </script>
+  </body>
+</html>
