@@ -2,6 +2,9 @@
 # Custom domain is in ./CNAME (github.withadi.dev).
 
 title: ADI Family
+# jekyll-seo-tag appends tagline after the title (e.g. "ADI Family | tagline").
+# Without one, it falls back to the full description here — overflows SERP titles.
+tagline: open-source projects
 description: >-
   Open-source projects under the ADI umbrella — schemas, surfaces, and
   developer tooling. Home of Box, a declarative DSL for schemas and
