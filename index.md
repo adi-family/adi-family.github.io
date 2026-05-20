@@ -1,9 +1,7 @@
 ---
-title: ADI Family
-description: >-
-  Open-source projects under the ADI umbrella — schemas, surfaces, and
-  developer tooling. Home of Box, a declarative DSL for schemas and
-  project surfaces.
+# Title and description intentionally inherit from _config.yml so
+# jekyll-seo-tag doesn't append a "| <description>" tail to <title>.
+layout: default
 ---
 
 # ADI Family
